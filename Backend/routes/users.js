@@ -2,6 +2,7 @@ const express = require('express');
 const { User } = require('../models/user');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 router.get(`/`, async (req, res) => {
     const userList = await User.find().select('-passwordHash');
@@ -45,6 +46,37 @@ router.post(`/`, async(req, res) => {
     }
 
     res.send(user);
+})
+
+router.post(`/login`, async(req, res) => {
+    const user = await User.findOne({email: req.body.email});
+    const secret =  process.env.secret;
+    console.log(secret);
+    
+    if(!user)
+    {
+        return res.status(404).send('The User not found for given email.');
+    }
+
+    if(user && bcrypt.compareSync(req.body.password, user.passwordHash)){
+        const token = jwt.sign(
+            {
+                userId: user.id
+            },
+            secret,
+            {
+                expiresIn: '1d'
+            }
+        );
+
+        return res.status(200).send({user: user.email, token: token});
+    }
+    else
+    {
+        res.status(404).send('The password entered is wrong for the following email.');
+    }
+
+    // res.send(user);
 })
 
 router.put(`/:id`, async (req, res) => {
