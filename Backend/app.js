@@ -3,7 +3,8 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
+const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handler')
 
 
 //Routes
@@ -11,7 +12,7 @@ const productsRouter = require('./routes/products');
 const categoriesRouter = require('./routes/categories');
 const usersRouter = require('./routes/users');
 const ordersRouter = require('./routes/orders');
-const authJwt = require('./helpers/jwt');
+
 
 const app = express();
 const api = process.env.API_URL;
@@ -23,6 +24,7 @@ app.options('*', cors());
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(authJwt());
+app.use(errorHandler);
 
 //Routers
 app.use(`${api}/categories`, categoriesRouter);

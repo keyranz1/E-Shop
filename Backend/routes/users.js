@@ -36,10 +36,9 @@ router.post(`/`, async(req, res) => {
         phone: req.body.phone,
         isAdmin: req.body.isAdmin
     })
-
-    console.log(user);
+    
     user = await user.save();
-    console.log(user);
+    
     if(!user)
     {
         return res.status(404).send('The User cannot be created/registered.');
@@ -51,7 +50,6 @@ router.post(`/`, async(req, res) => {
 router.post(`/login`, async(req, res) => {
     const user = await User.findOne({email: req.body.email});
     const secret =  process.env.secret;
-    console.log(secret);
     
     if(!user)
     {
