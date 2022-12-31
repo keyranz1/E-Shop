@@ -120,13 +120,13 @@ router.put(`/:id`, async (req, res) => {
 router.delete(`/:id`, (req, res) => {
     Product.findByIdAndRemove(req.params.id).then(product => {
         if(product){
-            return res.status(200).json({ success: true, message: 'The category was deleted.'});
+            return res.status(200).json({ success: true, message: 'The product was deleted.'});
         }
         else{
-            return res.status(404).json({ success: false, message: 'Category not found.'});
+            return res.status(404).json({ success: false, message: 'Product not found.'});
         }
     }).catch( err => {
-        return res.status(400).json({ success: false, error: err, message: 'Failed to add the category.'});
+        return res.status(400).json({ success: false, error: err, message: 'Failed to delete the product.'});
     })
 })
 

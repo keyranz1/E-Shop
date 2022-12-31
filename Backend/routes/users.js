@@ -22,6 +22,18 @@ router.get(`/:id`, async (req, res) => {
     res.status(200).send(user);
 })
 
+router.get(`/get/count`, async (req, res) => {
+    //const product = await Product.findById(req.params.id).populate('category');
+    const userCount = await User.countDocuments();
+
+    if(!userCount){
+        res.status(500).json({success: false});
+    }
+    res.send({
+        count: userCount
+    });
+})
+
 router.post(`/`, async(req, res) => {
     // var saltSync = bcrypt.genSaltSync(10);
     let user = new User({
@@ -47,6 +59,31 @@ router.post(`/`, async(req, res) => {
     res.send(user);
 })
 
+router.post(`/register`, async(req, res) => {
+    
+    let user = new User({
+        name : req.body.name,
+        email: req.body.email,
+        passwordHash: bcrypt.hashSync(req.body.password, 10),
+        street: req.body.street,
+        apartment: req.body.apartment,
+        city : req.body.city,
+        zip: req.body.zip,
+        country: req.body.country,
+        phone: req.body.phone,
+        isAdmin: req.body.isAdmin
+    })
+    
+    user = await user.save();
+    
+    if(!user)
+    {
+        return res.status(404).send('The User cannot be registered.');
+    }
+
+    res.send(user);
+})
+
 router.post(`/login`, async(req, res) => {
     const user = await User.findOne({email: req.body.email});
     const secret =  process.env.secret;
@@ -59,7 +96,8 @@ router.post(`/login`, async(req, res) => {
     if(user && bcrypt.compareSync(req.body.password, user.passwordHash)){
         const token = jwt.sign(
             {
-                userId: user.id
+                userId: user.id,
+                isAdmin: user.isAdmin
             },
             secret,
             {
@@ -111,6 +149,19 @@ router.put(`/:id`, async (req, res) => {
         return res.status(404).send('The Category could not be updated.');
 
     res.send(user);
+})
+
+router.delete(`/:id`, (req, res) => {
+    User.findByIdAndRemove(req.params.id).then(user => {
+        if(user){
+            return res.status(200).json({ success: true, message: 'The user was deleted.'});
+        }
+        else{
+            return res.status(404).json({ success: false, message: 'User not found.'});
+        }
+    }).catch( err => {
+        return res.status(400).json({ success: false, error: err, message: 'Failed to delete the user.'});
+    })
 })
 
 module.exports = router;
