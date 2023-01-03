@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
       const fileName = file.originalname.split(' ').join('-');
       const extension = FILE_TYPE_MAP[file.mimetype];
-      cb(null, `${file.fieldname}-${Date.now()}.${extension}`)
+      cb(null, `${fileName}-${Date.now()}.${extension}`)
     }
   })
   
@@ -85,7 +85,7 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
 
     const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`    
 
-    const product = new Product({
+    let product = new Product({
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
